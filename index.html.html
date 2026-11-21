@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manayer Alabdali — A portfolio, told as a walk</title>
+<meta name="description" content="Interactive portfolio of Manayer Alabdali — Information Systems graduate, web developer, business management. معرض أعمال تفاعلي لمناير العبدلي.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,400&family=IBM+Plex+Mono&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d1a24;--paper:#fff7e8;--acc:#c8452b;--card:#fff7e8ee;color-scheme:light}
+:root[data-theme=dark]{--ink:#f6ead2;--paper:#10152e;--acc:#ffb35c;--card:#10152eee;color-scheme:dark}
+*{box-sizing:border-box}html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);overscroll-behavior:none}
+body{font-family:'Fraunces',Georgia,serif;color:var(--ink);touch-action:none;padding:env(safe-area-inset-top) 0 0}
+[dir=rtl] body,[dir=rtl] button,[dir=rtl] .mono{font-family:'Tajawal',sans-serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.55}
+#nav{position:fixed;top:calc(env(safe-area-inset-top) + 14px);inset-inline:14px;display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;z-index:5}
+button{font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--ink);border-radius:999px;padding:7px 12px;cursor:pointer;font-size:13px;white-space:nowrap;flex:none}
+button:hover,button:focus-visible{background:var(--acc);color:#fff;outline:none}
+#title{position:fixed;top:calc(env(safe-area-inset-top) + 68px);inset-inline-start:14px;max-width:calc(100% - 28px);z-index:4;pointer-events:none;color:var(--ink);background:var(--card);border:1.5px solid var(--ink);border-radius:12px;padding:8px 16px 10px}
+#title h1{font-weight:500;font-size:clamp(28px,6vw,60px);line-height:1.15;margin:0;letter-spacing:-.02em}
+#title h1 em{opacity:.9}
+#cap{position:fixed;bottom:clamp(20px,6vh,60px);inset-inline:20px;max-width:430px;z-index:4;pointer-events:none;color:#2a1b12;background:#fff7e8d9;padding:12px 14px;border-radius:6px}
+:root[data-theme=dark] #cap{color:#f6ead2;background:#10152ed9}
+#cap p{margin:0 0 6px}#cap .yr{color:var(--acc)}
+#hint{position:fixed;bottom:8px;width:100%;text-align:center;z-index:4;pointer-events:none;color:#fff;opacity:.95;font-size:12px;text-shadow:0 1px 6px #000a}
+#bar{position:fixed;top:0;height:4px;background:var(--acc);z-index:6;inset-inline-start:0}
+#map,#panel{position:fixed;inset:0;z-index:8;background:#0007;display:none;align-items:center;justify-content:center;padding:16px}
+#map.on,#panel.on{display:flex}
+.box{background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:20px;max-width:760px;width:100%;max-height:86vh;overflow:auto;touch-action:pan-y}
+.box h2{margin:0 0 12px;font-weight:500}.box h2 em{color:var(--acc)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.card{border:1.5px solid var(--ink);border-radius:10px;padding:12px;background:var(--card)}
+.card h3{margin:6px 0;font-weight:500}.card .shot{height:84px;border-radius:6px;background:linear-gradient(135deg,var(--acc),#2d5fa3);position:relative;overflow:hidden}
+.card .shot:after{content:"";position:absolute;inset:14px 18px;background:#fff8;border-radius:4px;box-shadow:0 18px 0 -6px #fff8}
+.chip{display:inline-block;border:1.5px solid var(--ink);border-radius:999px;padding:4px 11px;margin:3px;font-size:13px;cursor:default;transition:.2s}
+.chip:hover{background:var(--acc);color:#fff;transform:translateY(-3px) rotate(-2deg)}
+.more{display:none;margin-top:8px}.card.open .more{display:block}
+a{color:var(--acc)}
+@media(max-width:520px){button{font-size:12px;padding:6px 9px}#nav{gap:5px}}
+#load{position:fixed;inset:0;background:#10152e;color:#ffb35c;z-index:20;display:flex;align-items:center;justify-content:center;transition:opacity .8s}
+</style>
+</head>
+<body>
+<div id="load" class="mono">loading the desert… / جارٍ التحميل</div>
+<div id="bar"></div>
+<nav id="nav" aria-label="Main">
+<button id="bHome"></button><button id="bMap"></button><button id="bProj"></button><button id="bSkill"></button><button id="bLang">AR</button><button id="bTheme"></button>
+</nav>
+<canvas id="c" aria-label="Interactive illustrated journey"></canvas>
+<div id="title" aria-live="polite"></div><div id="cap" class="mono"></div><div id="hint" class="mono"></div>
+<div id="map" role="dialog"><div class="box"><h2 id="mapT"></h2><div class="grid" id="mapG"></div></div></div>
+<div id="panel" role="dialog"><div class="box" id="pbox"></div></div>
+<script>
+/* ===== EDIT YOUR CONTENT HERE ===== */
+const GH="https://github.com/Manaayerr", LI="https://www.linkedin.com/in/manayer-al-abdali/", MAIL="manayerbusiness@gmail.com";
+const D={
+en:{dir:"ltr",home:"Home",map:"Map",proj:"Projects",skill:"Skills",hint:"drag, swipe or scroll to start walking →",mapT:"Where to?",
+ ch:[
+ ["MANAYER<em>.</em>","",["> Information Systems graduate. web developer.","> a portfolio, told as a walk."],"",""],
+ ["Where it <em>started.</em>","Umm Al-Qura University",["Bachelor’s in Information Systems, College of Computing.","Graduated 2025. This is where my curiosity about software began."],"2021 – 2025"],
+ ["Where I <em>trained.</em>","Wadi Makkah",["Full Stack Development training: a hackathon management system in Laravel & PHP.","I built the homepage and dashboard, connected the database, made the create-hackathon page and email password recovery with Mailtrap."],"Jun – Aug 2024"],
+ ["What I <em>built.</em>","Hackathon Hub",["Graduation project: a platform where organizations publish hackathons, create teams and manage participation requests."],"2025"],
+ ["What I <em>learned.</em>","Saudi Digital Academy",["Software Development Bootcamp: Python, development fundamentals, GitHub.","Accepted to the KAUST Academy AI Specialization 2026–2027 (upcoming, in progress of becoming)."],"Aug – Nov 2025"],
+ ["Where I <em>worked.</em>","Bin Mubarak Alshahrani Holding",["Business Manager (remote, flexible): business coordination, administrative follow-up, communication and operations support."],"6 months"],
+ ["Where I am <em>now.</em>","The road ahead",["A recent graduate looking for the right opportunity to join technology, creativity, organization and business.","Business development · technical coordination · web · AI · digital projects.","“Every experience is a new beginning. My journey is still being written.”"],""]],
+ projT:"Things I <em>built</em>",skT:"What I <em>work with</em>",explore:"Explore",gh:"GitHub profile",basic:"basic",
+ pr:[["Hackathon Hub","Graduation project: create and publish hackathons, form teams, manage participation requests.","PHP · Laravel · MySQL","Role details and repository link can be added here."],
+ ["Real Estate CRM","A Laravel-based CRM for managing real estate clients and listings.","Laravel · PHP · MySQL","Add your own description and link here."],
+ ["Project Management System","Bootcamp project at Saudi Digital Academy for planning and tracking tasks.","Python · GitHub","Add your own description and link here."]],
+ sk:["PHP","Laravel","MySQL","Python","HTML","CSS","JavaScript","MongoDB (basic)","GitHub","Jira","Database Design","Requirements Gathering","Web Application Development","Business Coordination"],contact:"Say hello"},
+ar:{dir:"rtl",home:"البداية",map:"الخريطة",proj:"المشاريع",skill:"المهارات",hint:"اسحبي أو مرّري لتبدأ الرحلة ←",mapT:"إلى أين؟",
+ ch:[
+ ["مناير<em>.</em>","",["> خريجة نظم معلومات. مطوّرة ويب.","> معرض أعمال يُروى على هيئة رحلة."],"",""],
+ ["من <em>البداية.</em>","جامعة أم القرى",["بكالوريوس نظم المعلومات، كلية الحاسبات.","تخرجت عام 2025. هنا بدأ شغفي بالبرمجة."],"2021 – 2025"],
+ ["حيث <em>تدرّبت.</em>","وادي مكة",["تدريب تطوير الويب المتكامل: نظام لإدارة الهاكاثونات باستخدام Laravel وPHP.","بنيت الصفحة الرئيسية ولوحة التحكم، وربطت قاعدة البيانات، وصفحة إنشاء الهاكاثون، واستعادة كلمة المرور عبر البريد باستخدام Mailtrap."],"يونيو – أغسطس 2024"],
+ ["ما <em>بنيته.</em>","Hackathon Hub",["مشروع التخرج: منصة تتيح للجهات نشر الهاكاثونات وتكوين الفرق وإدارة طلبات المشاركة."],"2025"],
+ ["ما <em>تعلّمته.</em>","الأكاديمية السعودية الرقمية",["معسكر تطوير البرمجيات: بايثون، أساسيات التطوير، وGitHub.","قبول في تخصص الذكاء الاصطناعي بأكاديمية كاوست 2026–2027 (فرصة تعلّم قادمة)."],"أغسطس – نوفمبر 2025"],
+ ["حيث <em>عملت.</em>","مجموعة بن مبارك الشهراني القابضة",["مديرة أعمال (عن بُعد ومرنة): تنسيق الأعمال، المتابعة الإدارية، التواصل، ودعم العمليات."],"٦ أشهر"],
+ ["حيث أنا <em>الآن.</em>","الطريق إلى الأمام",["خريجة جديدة أبحث عن الفرصة المناسبة التي تجمع التقنية والإبداع والتنظيم وفهم الأعمال.","تطوير الأعمال · التنسيق التقني · الويب · الذكاء الاصطناعي · المشاريع الرقمية.","«كل تجربة بداية جديدة. ورحلتي ما زالت تُكتب.»"],""]],
+ projT:"ما <em>بنيته</em>",skT:"ما <em>أعمل به</em>",explore:"استكشف",gh:"حسابي على GitHub",basic:"أساسي",
+ pr:[["Hackathon Hub","مشروع التخرج: إنشاء ونشر الهاكاثونات وتكوين الفرق وإدارة طلبات المشاركة.","PHP · Laravel · MySQL","يمكن إضافة تفاصيل الدور ورابط المستودع هنا."],
+ ["Real Estate CRM","نظام CRM مبني بـ Laravel لإدارة عملاء العقارات وقوائمها.","Laravel · PHP · MySQL","أضيفي وصفك ورابطك هنا."],
+ ["Project Management System","مشروع المعسكر في الأكاديمية السعودية الرقمية لتخطيط المهام ومتابعتها.","Python · GitHub","أضيفي وصفك ورابطك هنا."]],
+ sk:["PHP","Laravel","MySQL","Python","HTML","CSS","JavaScript","MongoDB (أساسي)","GitHub","Jira","تصميم قواعد البيانات","جمع المتطلبات","تطوير تطبيقات الويب","التنسيق الإداري"],contact:"تواصلي معي"}};
+const SIGN=["","UMM AL-QURA UNIVERSITY","WADI MAKKAH","HACKATHON HUB","SAUDI DIGITAL ACADEMY","BIN MUBARAK HOLDING",""];
+/* ===== ENGINE ===== */
+const $=id=>document.getElementById(id),S=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},G=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+let lang=G('lang')||(navigator.language||'').startsWith('ar')?'ar':'en';if(G('lang'))lang=G('lang');
+let theme=G('theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+const cv=$('c'),x=cv.getContext('2d'),W=1300,N=7,END=N*W-500;let vw,vh,sc,dpr;
+let pos=0,tgt=0,walk=0,face=1,cur=-1,t0=0;
+function rs(){dpr=Math.min(devicePixelRatio||1,2);cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;sc=innerHeight/700*dpr;vw=cv.width/sc;vh=700}
+addEventListener('resize',rs);rs();
+const rnd=n=>{let s=Math.sin(n*127.1)*43758.5;return s-Math.floor(s)};
+const lerpC=(a,b,k)=>{const p=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));const A=p(a),B=p(b);return'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*k))+')'};
+const dk=()=>theme==='dark';
+function sky(k){const g=x.createLinearGradient(0,0,0,vh*.8);
+ const top=dk()?lerpC('#080d26','#1b2358',k):lerpC('#2f6fbf','#6a8fd0',k),bot=dk()?lerpC('#2a2f66','#d0657a',k):lerpC('#a6cdf0','#f6a67e',k);
+ g.addColorStop(0,top);g.addColorStop(1,bot);x.fillStyle=g;x.fillRect(0,0,vw,vh)}
+function stars(){if(!dk())return;x.fillStyle='#fff';for(let i=0;i<90;i++){const a=.4+.6*Math.abs(Math.sin(t0/900+i));x.globalAlpha=a*.8;x.fillRect(rnd(i)*vw,rnd(i+9)*vh*.55,1.6,1.6)}x.globalAlpha=1;
+ x.fillStyle='#f6ead2';x.beginPath();x.arc(vw*.8,90,26,0,7);x.fill()}
+function clouds(cx){if(dk())return;x.fillStyle='#ffffffcc';for(let i=0;i<9;i++){const px=((i*420-cx*.1)%(vw+500)+vw+500)%(vw+500)-250,py=70+rnd(i)*160;
+ for(let j=0;j<4;j++){x.beginPath();x.ellipse(px+j*36,py+(j%2)*10,50,26,0,0,7);x.fill()}}}
+function dunes(cx,gy){[[.22,'#d9a066','#2b2548',140],[.4,'#e3ac62','#352c52',90]].forEach(([p,l,d,h],i)=>{x.fillStyle=dk()?d:l;x.beginPath();x.moveTo(0,vh);
+ for(let sx=0;sx<=vw;sx+=20)x.lineTo(sx,gy-h-Math.sin((sx+cx*p)/(200+i*90))*45-Math.sin((sx+cx*p)/70)*8);x.lineTo(vw,vh);x.fill()})}
+function palm(px,gy,h,cx){const sx=px-cx;if(sx<-200||sx>vw+200)return;x.strokeStyle=dk()?'#4a3626':'#7a5330';x.lineWidth=11;x.lineCap='round';
+ const sw=Math.sin(t0/1400+px)*5;x.beginPath();x.moveTo(sx,gy);x.quadraticCurveTo(sx+14,gy-h/2,sx+sw,gy-h);x.stroke();
+ x.fillStyle=dk()?'#1d4a3a':'#2f7a3a';for(let i=0;i<7;i++){const a=-Math.PI+i*Math.PI/6+Math.sin(t0/900+i)*.04;x.beginPath();x.moveTo(sx+sw,gy-h);
+ x.quadraticCurveTo(sx+sw+Math.cos(a)*60,gy-h+Math.sin(a)*50-20,sx+sw+Math.cos(a)*105,gy-h+Math.sin(a)*40+40);x.quadraticCurveTo(sx+sw+Math.cos(a)*60,gy-h+Math.sin(a)*50+4,sx+sw,gy-h);x.fill()}}
+function win(wx,wy,ww,wh,type,lit){if(type==='hij'){x.fillStyle=dk()&&lit?'#ffc15a':'#5a3418';x.fillRect(wx,wy,ww,wh);x.strokeStyle=dk()&&lit?'#b3721f':'#3a2010';x.lineWidth=1.5;
+ for(let i=1;i<4;i++){x.beginPath();x.moveTo(wx+ww*i/4,wy);x.lineTo(wx+ww*i/4,wy+wh);x.stroke();x.beginPath();x.moveTo(wx,wy+wh*i/4);x.lineTo(wx+ww,wy+wh*i/4);x.stroke()}}
+ else{x.fillStyle=dk()?(lit?'#ffd27a':'#2a4a7a'):'#4f8fd6';x.fillRect(wx,wy,ww,wh);x.fillStyle='#ffffff40';x.fillRect(wx,wy,ww*.4,wh)}}
+function building(i,cx,gy){const bx=i*W+420-cx,w=i===4||i===5?460:560,h=[0,320,300,330,310,420,0][i];if(!h||bx<-w||bx>vw)return;const hij=i===1||i===4;
+ x.fillStyle=hij?(dk()?'#6d5a47':'#d9bf93'):(dk()?'#3a4468':'#e8e1d0');x.fillRect(bx,gy-h,w,h);x.fillStyle=hij?(dk()?'#52432f':'#b99a66'):(dk()?'#2a3252':'#c9c2b0');x.fillRect(bx-6,gy-h-12,w+12,14);
+ const cols=hij?7:6,rows=hij?4:Math.floor(h/80);for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const ww=w/cols-18;if(r===rows-1&&Math.abs(c-(cols-1)/2)<1)continue;win(bx+9+c*(w/cols),gy-h+26+r*((h-110)/rows),ww,((h-110)/rows)-16,hij?'hij':'g',rnd(i*50+r*7+c)>.35)}
+ const dw=90;x.fillStyle=dk()?'#ffc15a':'#2c1a10';x.beginPath();x.moveTo(bx+w/2-dw/2,gy);x.lineTo(bx+w/2-dw/2,gy-90);x.arc(bx+w/2,gy-90,dw/2,Math.PI,0);x.lineTo(bx+w/2+dw/2,gy);x.fill();
+ x.fillStyle=dk()?'#f6ead2':'#2a1b12';x.font='600 15px IBM Plex Mono,monospace';x.textAlign='center';x.fillText(SIGN[i],bx+w/2,gy-h+16-0);x.textAlign='left';
+ if(i===3){x.fillStyle=dk()?'#ffd27a':'#fff';x.font='28px Fraunces,serif';x.fillText('{ hack }',bx+w/2-50,gy-h-30)}}
+function city(cx,gy){const bx=6*W-cx;if(bx>vw+200||bx<-1500)return;x.fillStyle=dk()?'#ffb35c':'#ffe0a0';x.beginPath();x.arc(bx+640,gy-30+Math.max(0,60-(pos-5.4*W)/12),70,Math.PI,0);x.fill();
+ for(let i=0;i<14;i++){const h=110+rnd(i+3)*260+(i>9?120:0),w=46+rnd(i)*34,px=bx+620+i*58;x.fillStyle=dk()?'#232a52':'#b9a58a';x.fillRect(px,gy-h,w,h);
+ if(dk()){x.fillStyle='#ffd27a';for(let k=0;k<h/24;k++)if(rnd(i*9+k)>.4)x.fillRect(px+8,gy-h+8+k*22,w-16,6)}}
+ x.fillStyle=dk()?'#222':'#6b5a4a';x.beginPath();x.moveTo(bx-60,vh);x.lineTo(bx+560,gy+6);x.lineTo(bx+720,gy+6);x.lineTo(bx+1000,vh);x.fill()}
+function girl(px,gy){const w=walk,sw=Math.sin(t0/110)*w,bob=Math.abs(Math.cos(t0/110))*5*w;x.save();x.translate(px,gy);x.scale(face,1);
+ x.fillStyle='#00000030';x.beginPath();x.ellipse(0,0,46,9,0,0,7);x.fill();
+ x.fillStyle='#e8d8b8';[1,-1].forEach(s=>{x.save();x.translate(s*8,-130-bob);x.rotate(s*sw*.28);x.beginPath();x.moveTo(-17,0);x.lineTo(17,0);x.lineTo(24+s*3,130);x.lineTo(-16,130);x.closePath();x.fill();x.fillStyle='#d77a8c';x.fillRect(-16,122,38,9);x.fillStyle='#e8d8b8';x.restore()});
+ x.translate(0,-bob);x.fillStyle='#4f7aa8';x.beginPath();x.moveTo(-26,-130);x.lineTo(-30,-232);x.quadraticCurveTo(0,-250,30,-232);x.lineTo(28,-130);x.closePath();x.fill();x.fillStyle='#3d6794';x.fillRect(-2,-232,4,102);
+ x.fillStyle='#c98f6b';x.fillRect(-6,-250,12,18);x.beginPath();x.ellipse(0,-268,19,22,0,0,7);x.fill();
+ x.fillStyle='#2a1a16';x.beginPath();x.ellipse(0,-276,24,25,0,Math.PI,0);x.lineTo(24,-246);x.lineTo(17,-250);x.lineTo(-17,-250);x.lineTo(-24,-246);x.fill();x.fillRect(-24,-276,10,38);
+ x.fillStyle='#2a1a16';x.fillRect(5,-268,3,3);x.fillStyle='#4f7aa8';x.save();x.translate(18,-226);x.rotate(-sw*.25);x.fillRect(-6,0,12,76);x.fillStyle='#c98f6b';x.beginPath();x.arc(0,78,7,0,7);x.fill();
+ x.strokeStyle='#3d7a3a';x.lineWidth=3;x.beginPath();x.moveTo(0,78);x.lineTo(-4,50);x.stroke();x.fillStyle='#e0587a';x.beginPath();x.arc(-4,48,8,0,7);x.fill();x.restore();x.restore()}
+function frame(ts){t0=ts;pos+=(tgt-pos)*.09;const d=tgt-pos;walk+=((Math.abs(d)>2?1:0)-walk)*.15;if(Math.abs(d)>2)face=d>0?1:-1;
+ const gy=vh*.8,px=Math.min(vw*.3,420),cx=pos-px,k=Math.max(0,Math.min(1,(pos-5.3*W)/(W*.7)));x.setTransform(sc,0,0,sc,0,0);
+ sky(k);stars();clouds(cx);dunes(cx,gy);
+ x.fillStyle=dk()?'#3b2f44':'#e59a48';x.fillRect(0,gy,vw,vh-gy);x.fillStyle=dk()?'#4a3b52':'#f0b068';for(let i=0;i<40;i++)x.fillRect(((rnd(i)*vw*3-cx)%vw+vw)%vw,gy+14+rnd(i+5)*(vh-gy-20),24+rnd(i+2)*40,3);
+ city(cx,gy);for(let i=0;i<N;i++){building(i,cx,gy);for(let j=0;j<3;j++)if(!(i===6&&j>0))palm(i*W+rnd(i*3+j)*W*.9+(i%2?300:80),gy+8,150+rnd(i+j)*90,cx)}
+ girl(px,gy+22);
+ const c=Math.max(0,Math.min(N-1,Math.floor(pos/W+.3)));if(c!==cur){cur=c;ui()}
+ $('bar').style.width=Math.min(100,pos/END*100)+'%';requestAnimationFrame(frame)}
+/* ===== UI ===== */
+function T(){return D[lang]}
+function ui(){const t=T(),c=t.ch[Math.max(cur,0)];$('title').innerHTML='<h1>'+c[0]+'</h1><div class="mono">'+(c[1]||'')+'</div>';
+ let h=c[2].map(p=>'<p>'+p+'</p>').join('');if(c[3])h+='<p class="yr">'+c[3]+'</p>';if(cur===3)h+='<p><button style="pointer-events:auto" onclick="openP()">'+t.explore+' →</button></p>';
+ if(cur===6)h+='<p style="pointer-events:auto"><a href="mailto:'+MAIL+'">'+t.contact+'</a> · <a href="'+LI+'" target="_blank" rel="noopener">LinkedIn</a> · <a href="'+GH+'" target="_blank" rel="noopener">GitHub</a></p>';
+ $('cap').innerHTML=h;$('cap').style.display=cur===0&&!c[2][0]?'none':'block'}
+function apply(){const t=T();document.documentElement.lang=lang;document.documentElement.dir=t.dir;document.documentElement.dataset.theme=theme;
+ $('bHome').textContent='⌂';$('bHome').setAttribute('aria-label',t.home);$('bMap').textContent=t.map;$('bProj').textContent=t.proj;$('bSkill').textContent=t.skill;$('bLang').textContent=lang==='en'?'AR':'EN';
+ $('bTheme').textContent=theme==='dark'?'☀':'☾';$('bTheme').setAttribute('aria-label',theme==='dark'?'Light mode':'Dark mode');$('hint').textContent=t.hint;$('mapT').textContent=t.mapT;
+ $('mapG').innerHTML=t.ch.map((c,i)=>'<button data-i="'+i+'" style="border-radius:10px;text-align:start">'+(i?'0'+i+' · ':'')+(c[1]||'Manayer')+'</button>').join('');
+ $('mapG').querySelectorAll('button').forEach(b=>b.onclick=()=>{go(+b.dataset.i);$('map').classList.remove('on')});ui()}
+function go(i){tgt=i?i*W+W*.3-W*.3+60:0}
+function openP(){const t=T();$('pbox').innerHTML='<h2>'+t.projT+'</h2><div class="grid">'+t.pr.map((p,i)=>'<div class="card" id="pc'+i+'"><div class="shot"></div><h3>'+p[0]+'</h3><p>'+p[1]+'</p><p class="mono">'+p[2]+'</p><button onclick="this.parentNode.classList.toggle(\'open\')">'+t.explore+'</button><div class="more mono">'+p[3]+'<br><a href="'+GH+'" target="_blank" rel="noopener">'+t.gh+'</a></div></div>').join('')+'</div>';$('panel').classList.add('on')}
+function openS(){const t=T();$('pbox').innerHTML='<h2>'+t.skT+'</h2>'+t.sk.map(s=>'<span class="chip">'+s+'</span>').join('');$('panel').classList.add('on')}
+$('bHome').onclick=()=>{tgt=0};$('bMap').onclick=()=>$('map').classList.add('on');$('bProj').onclick=openP;$('bSkill').onclick=openS;
+$('bLang').onclick=()=>{lang=lang==='en'?'ar':'en';S('lang',lang);apply()};$('bTheme').onclick=()=>{theme=theme==='dark'?'light':'dark';S('theme',theme);apply()};
+[ 'map','panel'].forEach(id=>$(id).addEventListener('click',e=>{if(e.target.id===id)e.target.classList.remove('on')}));
+addEventListener('keydown',e=>{if(e.key==='Escape'){$('map').classList.remove('on');$('panel').classList.remove('on')}if(e.key==='ArrowRight'||e.key==='ArrowDown')mv(120);if(e.key==='ArrowLeft'||e.key==='ArrowUp')mv(-120)});
+function mv(d){tgt=Math.max(0,Math.min(END,tgt+d))}
+addEventListener('wheel',e=>{if(e.target.closest('.box'))return;mv((e.deltaY+e.deltaX)*.9)},{passive:true});
+let dx=null;cv.addEventListener('pointerdown',e=>{dx=e.clientX;cv.setPointerCapture(e.pointerId)});cv.addEventListener('pointermove',e=>{if(dx!==null){mv((dx-e.clientX)*1.6);dx=e.clientX;$('hint').style.opacity=0}});
+['pointerup','pointercancel'].forEach(n=>cv.addEventListener(n,()=>dx=null));
+apply();requestAnimationFrame(frame);addEventListener('load',()=>setTimeout(()=>{$('load').style.opacity=0;setTimeout(()=>$('load').remove(),900)},500));
+</script>
+</body>
+</html>
